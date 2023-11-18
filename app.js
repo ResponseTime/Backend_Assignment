@@ -3,9 +3,17 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const multer = require("multer");
+const compression = require("compression");
 // const fs = require("fs");
 const reader = require("xlsx");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const db = require("./db_config.js");
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(compression());
+
 // const storage = multer.diskStorage({
 //   destination: function (req, file, cb) {
 //     cb(null, "uploads/");
@@ -26,11 +34,6 @@ const upload = multer({
     cb(null, true);
   },
 });
-const jwt = require("jsonwebtoken");
-const db = require("./db_config.js");
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 function auth(req, res, next) {
   const token = req.header("Authorization");
@@ -117,6 +120,23 @@ app.post("/api/upload", [auth, upload.single("file")], (req, res) => {
     } catch (e) {
       res.json(e);
     }
+  }
+});
+app.get("/api/getdata/:pagenum/:pagesize", auth, async (req, res) => {
+  try {
+    const pageN = parseInt(req.params.pagenum);
+    const pageS = parseInt(req.params.pagesize);
+    const skip = (pageN - 1) * pageS;
+    const data = await db
+      .collection("userdata")
+      .find({})
+      .skip(skip)
+      .limit(pageS)
+      .toArray();
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
   }
 });
 app.listen(3000, () => {
