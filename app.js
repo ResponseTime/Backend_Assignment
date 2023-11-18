@@ -55,7 +55,7 @@ app.post("/api/signup", async (req, res) => {
     let collection = db.collection("logdet");
     let user = await collection.findOne({ email });
     if (user) {
-      res.status(400).json({ message: "user exists login" });
+      return res.status(400).json({ message: "user exists login" });
     }
     const salt = await bcrypt.genSalt();
     const encrytedPass = await bcrypt.hash(password, salt);
@@ -65,9 +65,9 @@ app.post("/api/signup", async (req, res) => {
     });
 
     if (newIns.acknowledged == true) {
-      res.status(201).json({ message: "user created" });
+      return res.status(201).json({ message: "user created" });
     } else {
-      res.status(500).json({ message: "some error occured" });
+      return res.status(500).json({ message: "some error occured" });
     }
   } catch (err) {
     return res.status(500).json({ error: "Internal server error" });
