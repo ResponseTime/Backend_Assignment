@@ -70,7 +70,7 @@ app.post("/api/signup", async (req, res) => {
       return res.status(500).json({ message: "some error occured" });
     }
   } catch (err) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error!" });
   }
 });
 app.post("/api/login", async (req, res) => {
